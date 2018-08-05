@@ -682,7 +682,7 @@ function replay()
 	end
 
 	logMsg("Looking for absence of farmFastModeBtn.png")
-	if not(farmFastModeBtn_region:exists(Pattern("farmFastModeBtn.png"):similar(acc))) do		
+	if not(farmFastModeBtn_region:exists(Pattern("farmFastModeBtn.png"):similar(acc))) then		
 		clickRandom(farmFastModeBtn_region)
 		wait(1)
 	end
