@@ -276,6 +276,7 @@ function clickRandomReg(r)
 end
 --clicks a random location in the given region if a image was found, else just click the center. Also adds the scandelay as wait after click
 function clickRandom(r)
+	logMsg('clickRandom start')
 	wait(.1)
 	local region
 	local loc
@@ -286,8 +287,10 @@ function clickRandom(r)
 	end
 	
 	if r:getLastMatch() ~= nil then
+		logMsg('clickRandom getLastMatch is NOT nill')
 		region = r:getLastMatch()
 	else
+		logMsg('clickRandom getLastMatch is nill')
 		region = r
         if debugCb == true then
             wait(.1)
@@ -324,6 +327,7 @@ function clickRandom(r)
 
 	wait((math.random(clickDelayMax))+0.35)
 
+	logMsg('clickRandom end')
 end
 
 --checks if there is a newer version and updates the script
@@ -414,9 +418,9 @@ function showConfigDialog()
 	addTextView("max refills (0 = infinite): ")
 	addEditNumber("refillMaxCount", "0")
 	addSeparator()
-	spAvgTimeItems = {"1 min", "2 min", "3 min", "ignore"}
-    addTextView("avg runtime:  ")
-    addSpinnerIndex("spAvgTimeIndex", spAvgTimeItems, spAvgTimeItems[2])
+	addTextView("avg runtime (seconds) ")
+	addEditNumber("avgRunTimeSec", "60")
+	addSeparator()
 	addCheckBox("clickBossCB", "click bosses?", false)
 	newRow()
 	addTextView("Glyphs: ")
@@ -502,13 +506,11 @@ function setConfig()
 end
 
 function waitForBattle()
-
-	wait(.1)
 	logMsg("Waiting for battle start...")
 	setHighlightTextStyle(0x4d000000,0xf8ffffff, 20)
 	screenCenterReg:highlight("Waiting till battle starts...")
 	while not(farmGearBtn_region:exists(Pattern("farmGearBtn.png"):similar(acc))) do
-		wait(1)
+		wait(4)
 	end
 	screenCenterReg:highlightOff()
 	logMsg("Battle started")
@@ -530,11 +532,10 @@ function waitForResult()
 	dungeonCount = dungeonCount +1
 	setExitStats("")
 	setResultsOs()
-	if (clickBossCB == false and spAvgTimeIndex ~=4)then
-		local avgTime = spAvgTimeIndex*60
-		toast("Waiting "..avgTime.." sec")
-		logMsg("Waiting "..avgTime.." sec")
-		wait(spAvgTimeIndex*60)
+	if (clickBossCB == false and avgRunTimeSec ~=0)then
+		toast("Waiting "..avgRunTimeSec.." sec")
+		logMsg("Waiting "..avgRunTimeSec.." sec")
+		wait(avgRunTimeSec)
 	end
 
 	repeat
@@ -652,7 +653,7 @@ function waitForResult()
 	end
 	wait(1)
 	if(farmGetMonContinueBtn_region:exists(Pattern("farmGetMonContinueBtn.png"):similar(acc))) then
-		wait(.1)
+		wait(1)
 		clickRandom(farmGetMonContinueBtn_region)
 		logMsg("Getting dropped monster")
 	end
@@ -688,9 +689,7 @@ function replay()
 	end
 
 	logMsg('Click replay')
-	clickRandom(farmSearchReplayReg)	
-	
-	wait(1)
+	clickRandom(farmSearchReplayReg)
 
 	if(checkEnergy()) then
 		if(refillCb) then
@@ -738,6 +737,8 @@ function sellGlyph(note)
 	end
 
 function checkEnergy()
+
+	logMsg("Checking energy")
 
 	if(farmOutOfEnergy_region:exists(Pattern("farmOutOfEnergy.png"):similar(acc))) then
 		logMsg("Energy empty")
